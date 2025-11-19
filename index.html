@@ -393,16 +393,8 @@
           <div class="order-items-summary" id="orderItemsSummary"></div>
           <form id="orderForm" onsubmit="submitOrder(event)">
             <div class="order-form-group">
-              <label for="orderName">Име *</label>
-              <input type="text" id="orderName" name="name" required placeholder="Вашето име">
-            </div>
-            <div class="order-form-group">
-              <label for="orderEmail">Имейл *</label>
-              <input type="email" id="orderEmail" name="email" required placeholder="ваш@имейл.com">
-            </div>
-            <div class="order-form-group">
-              <label for="orderPhone">Телефон *</label>
-              <input type="tel" id="orderPhone" name="phone" required placeholder="+359 888 123 456">
+              <label for="orderClientNumber">Клиентски номер *</label>
+              <input type="text" id="orderClientNumber" name="clientNumber" required placeholder="Вашият клиентски номер">
             </div>
             <div class="order-form-group">
               <label for="orderAddress">Адрес за доставка</label>
@@ -1878,10 +1870,17 @@
       const orderForm = document.getElementById("orderForm");
       const orderSuccess = document.getElementById("orderSuccess");
       const orderFormContainer = document.getElementById("orderFormContainer");
+      const submitBtn = document.getElementById("orderSubmitBtn");
       
       // Показване на формата и скриване на успешното съобщение
       orderFormContainer.style.display = "block";
       orderSuccess.classList.remove("show");
+      
+      // Възстановяване на бутона при отваряне на формата
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Изпрати поръчка";
+      }
       
       // Генериране на резюме на артикулите
       const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -1911,6 +1910,12 @@
       // Възстановяване на формата и скриване на успешното съобщение
       document.getElementById("orderFormContainer").style.display = "block";
       document.getElementById("orderSuccess").classList.remove("show");
+      // Възстановяване на бутона за изпращане
+      const submitBtn = document.getElementById("orderSubmitBtn");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Изпрати поръчка";
+      }
     }
     
     // Затваряне на модала при клик извън него
@@ -1933,9 +1938,7 @@
       submitBtn.textContent = "Изпращане...";
       
       // Събиране на данните от формата
-      const name = document.getElementById("orderName").value;
-      const email = document.getElementById("orderEmail").value;
-      const phone = document.getElementById("orderPhone").value;
+      const clientNumber = document.getElementById("orderClientNumber").value;
       const address = document.getElementById("orderAddress").value || "Не е посочен";
       const notes = document.getElementById("orderNotes").value || "Няма";
       
@@ -1951,11 +1954,10 @@
       const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2);
       
       // Форматиране на съобщението
-      const message = `Нова поръчка от ${name}
+      const message = `Нова поръчка от клиентски номер: ${clientNumber}
 
 Контактна информация:
-Имейл: ${email}
-Телефон: ${phone}
+Клиентски номер: ${clientNumber}
 Адрес: ${address}
 
 Артикули:
@@ -1967,16 +1969,14 @@ ${itemsList}
       
       // Използване на FormSubmit (безплатен, неограничен)
       const formData = new FormData();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('phone', phone);
+      formData.append('clientNumber', clientNumber);
       formData.append('address', address);
       formData.append('notes', notes);
       formData.append('items', itemsList);
       formData.append('total', total);
       formData.append('message', message);
       formData.append('_to', 'kosyoivanov44@gmail.com');
-      formData.append('_subject', `Нова поръчка от ${name}`);
+      formData.append('_subject', `Нова поръчка от клиентски номер: ${clientNumber}`);
       formData.append('_template', 'table');
       formData.append('_captcha', 'false'); // Изключване на капча за по-бързо изпращане
       
@@ -2000,6 +2000,10 @@ ${itemsList}
         document.getElementById("orderFormContainer").style.display = "none";
         document.getElementById("orderSuccess").classList.add("show");
         
+        // Възстановяване на бутона (в случай че потребителят отвори формата отново)
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Изпрати поръчка";
+        
         // Пълно нулиране след 3 секунди
         setTimeout(() => {
           // Изчистване на кошницата (без потвърждение)
@@ -2022,7 +2026,7 @@ ${itemsList}
         });
         
         // Показване на алтернативен метод (mailto)
-        const mailtoSubject = encodeURIComponent(`Нова поръчка от ${name}`);
+        const mailtoSubject = encodeURIComponent(`Нова поръчка от клиентски номер: ${clientNumber}`);
         const mailtoBody = encodeURIComponent(message);
         const mailtoLink = `mailto:kosyoivanov44@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
         
