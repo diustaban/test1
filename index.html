@@ -25,8 +25,10 @@
   .accordion-header::after{content:"−";font-size:1.4rem;font-weight:bold;margin-left:auto}
   .novo-badge{background:#E63946;color:white;padding:4px 12px;border-radius:4px;font-size:0.85rem;font-weight:600;margin-left:10px;text-transform:uppercase;flex-shrink:0}
   .product-banner{width:100%;max-width:900px;height:auto;border-radius:12px;margin:0 auto 25px;box-shadow:0 4px 12px rgba(0,0,0,.1);display:block}
-  .dreveni-extras{align-items:center;text-align:center}
-  .dreveni-extras label{justify-content:center}
+  .dreveni-extras{align-items:center;text-align:center;display:flex;flex-direction:column;gap:10px;margin:15px 0}
+  .dreveni-extras label{justify-content:center;display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:8px;transition:background .2s;width:100%;max-width:400px;margin:0 auto}
+  .dreveni-extras label:hover{background:#F0F3F5}
+  .dreveni-extras input[type="checkbox"],.dreveni-extras input[type="radio"]{width:18px;height:18px;cursor:pointer;accent-color:#D4AF37}
   @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
   .accordion-content{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .5s ease,padding .5s ease;background:#FDFDFD}
   .accordion-content.open{padding:30px 20px;max-height:8000px}
@@ -101,7 +103,7 @@
   th:nth-child(1), td:nth-child(1) { min-width: 80px !important; }
   th:nth-child(2), td:nth-child(2) { min-width: 60px !important; }
   th:nth-child(3), td:nth-child(3) { min-width: auto !important; white-space: normal; }
-  .notes{background:#F8F9FA;border-left:5px solid #D4AF37;padding:18px;font-size:clamp(.85rem,2.5vw,.95rem);border-radius:0 10px 10px 0;margin:25px 0;line-height:1.8;text-align:left}
+  .notes{background:#F8F9FA;border-left:5px solid #D4AF37;padding:18px;font-size:clamp(.85rem,2.5vw,.95rem);border-radius:0 10px 10px 0;margin:25px auto;line-height:1.8;text-align:center;max-width:900px}
   .examples-title{margin:30px 0 15px;font-size:1.2rem;color:#1A1A1A;text-align:center;font-weight:600}
   .examples-gallery{display:flex;overflow-x:auto;gap:20px;padding:20px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .example-item{flex:0 0 auto;scroll-snap-align:center}
@@ -113,11 +115,14 @@
   h3{margin:25px 0 12px;font-size:1.3rem;color:#1A1A1A;text-align:center;font-weight:600}
   .calculator{background:#F0F3F5;border:1px solid #E9ECEF;border-radius:12px;padding:20px;margin:20px 0;box-shadow:0 3px 8px rgba(0,0,0,.06);text-align:center}
   .calc-input{display:flex;flex-direction:column;gap:12px;max-width:320px;margin:0 auto}
-  .calc-checkboxes{display:flex;flex-direction:column;gap:6px;text-align:left;font-size:.95rem;color:#333;margin-top:8px}
-  .calc-checkboxes label{display:flex;align-items:center;gap:8px;line-height:1.4}
+  .calc-checkboxes{display:flex;flex-direction:column;gap:10px;text-align:center;font-size:.95rem;color:#333;margin-top:15px;align-items:center;justify-content:center}
+  .calc-checkboxes label{display:flex;align-items:center;justify-content:center;gap:10px;line-height:1.5;cursor:pointer;padding:8px 12px;border-radius:8px;transition:background .2s;width:100%;max-width:400px}
+  .calc-checkboxes label:hover{background:#F0F3F5}
+  .calc-checkboxes input[type="checkbox"],.calc-checkboxes input[type="radio"]{width:18px;height:18px;cursor:pointer;accent-color:#D4AF37}
   .calc-result{margin-top:15px;font-size:1.3rem;font-weight:700;color:#D4AF37;min-height:50px;word-wrap:break-word;white-space:normal;padding:12px;background:#fff;border:1px solid #E9ECEF;border-radius:10px}
-  .history{margin-top:20px;text-align:left;font-size:.9rem;color:#555;max-width:320px;margin-left:auto;margin-right:auto;max-height:200px;overflow-y:auto;border:1px solid #E9ECEF;padding:12px;border-radius:10px;background:#fff}
-  .history-item{padding:6px 0;border-bottom:1px dashed #E9ECEF}
+  .history{margin-top:20px;text-align:center;font-size:.9rem;color:#555;max-width:320px;margin-left:auto;margin-right:auto;max-height:200px;overflow-y:auto;border:1px solid #E9ECEF;padding:12px;border-radius:10px;background:#fff}
+  .history strong{display:block;text-align:center;margin-bottom:10px;font-size:1rem;color:#1A1A1A;font-weight:600}
+  .history-item{padding:6px 0;border-bottom:1px dashed #E9ECEF;text-align:center}
   .pdf-button{width:100%;max-width:320px;margin:0 auto 15px auto;padding:14px;border-radius:10px;border:1px solid #D4AF37;background:#fff;color:#1A1A1A;font-weight:600;font-size:1.05rem;cursor:pointer;transition:background .2s,transform .2s;display:block}
   .pdf-button:hover{background:#FFF6D5;transform:translateY(-1px)}
   .download-button{width:100%;max-width:320px;margin:20px auto 25px auto;padding:14px 20px;border-radius:10px;border:none;background:#2196F3;color:#fff;font-weight:600;font-size:1.05rem;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;display:block;box-shadow:0 2px 6px rgba(33,150,243,0.3)}
@@ -133,11 +138,11 @@
   .cart-close{background:none;border:none;color:white;font-size:28px;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
   .cart-content{flex:1;padding:20px;overflow-y:auto}
   .cart-item{background:#fff;border:1px solid #E9ECEF;border-radius:10px;padding:15px;margin-bottom:15px}
-  .cart-item-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:10px}
-  .cart-item-title{font-weight:600;color:#1A1A1A;font-size:1rem;flex:1}
+  .cart-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .cart-item-title{font-weight:600;color:#1A1A1A;font-size:1rem;flex:1;text-align:center}
   .cart-item-remove{background:none;border:none;color:#E63946;cursor:pointer;font-size:20px;padding:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
-  .cart-item-details{font-size:0.9rem;color:#666;margin-bottom:10px}
-  .cart-item-price{font-weight:600;color:#D4AF37;font-size:1.1rem}
+  .cart-item-details{font-size:0.9rem;color:#666;margin-bottom:10px;text-align:center}
+  .cart-item-price{font-weight:600;color:#D4AF37;font-size:1.1rem;text-align:center}
   .cart-footer{background:#F8F9FA;padding:20px;border-top:1px solid #E9ECEF}
   .cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;font-size:1.2rem;font-weight:600}
   .cart-total-label{color:#1A1A1A}
@@ -166,9 +171,9 @@
   .order-items-summary{background:#F8F9FA;border-radius:10px;padding:20px;margin-bottom:25px;max-height:300px;overflow-y:auto}
   .order-item-summary{margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid #E9ECEF}
   .order-item-summary:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
-  .order-item-summary-title{font-weight:600;color:#1A1A1A;margin-bottom:8px}
-  .order-item-summary-details{font-size:.9rem;color:#666;margin-bottom:5px;line-height:1.5}
-  .order-item-summary-price{font-weight:600;color:#D4AF37;font-size:1.1rem}
+  .order-item-summary-title{font-weight:600;color:#1A1A1A;margin-bottom:8px;text-align:center}
+  .order-item-summary-details{font-size:.9rem;color:#666;margin-bottom:5px;line-height:1.5;text-align:center}
+  .order-item-summary-price{font-weight:600;color:#D4AF37;font-size:1.1rem;text-align:center}
   .order-total{display:flex;justify-content:space-between;align-items:center;padding:15px;background:linear-gradient(135deg,#D4AF37,#F4D03F);border-radius:10px;margin-bottom:25px}
   .order-total-label{font-weight:600;color:#1A1A1A;font-size:1.2rem}
   .order-total-amount{font-weight:700;color:#1A1A1A;font-size:1.5rem}
