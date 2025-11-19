@@ -5319,13 +5319,13 @@ ${itemsList}
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("priceList").style.display = "none";
       
-      // Взаимно изключване на кутиите за ролетни щори
+      // Автоматично избиране на затворена кутия при избор на облечена кутия за ролетни щори
       const roletniBoxFabric = document.querySelector(".roletni-extra[value='box_fabric']");
       const roletniBoxClosed = document.querySelector(".roletni-extra[value='box_closed']");
       if (roletniBoxFabric && roletniBoxClosed) {
         roletniBoxFabric.addEventListener("change", function() {
           if (this.checked) {
-            roletniBoxClosed.checked = false;
+            roletniBoxClosed.checked = true;
           }
         });
       }
@@ -5341,13 +5341,13 @@ ${itemsList}
         });
       }
       
-      // Взаимно изключване на кутиите за двойно роло
+      // Автоматично избиране на затворена кутия при избор на облечена кутия за двойно роло
       const doubleRoloBoxFabric = document.querySelector(".double-rolo-extra[value='box_fabric']");
       const doubleRoloBoxClosed = document.querySelector(".double-rolo-extra[value='box_closed']");
       if (doubleRoloBoxFabric && doubleRoloBoxClosed) {
         doubleRoloBoxFabric.addEventListener("change", function() {
           if (this.checked) {
-            doubleRoloBoxClosed.checked = false;
+            doubleRoloBoxClosed.checked = true;
           }
         });
       }
