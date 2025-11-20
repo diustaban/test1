@@ -202,6 +202,28 @@
     outline: none;
     border-color: #D4AF37;
   }
+  .lameli-visualization{background:#fff;border:2px solid #D4AF37;border-radius:12px;padding:20px;margin:20px 0;text-align:center}
+  .lameli-info{margin-bottom:15px;font-size:1.1rem;font-weight:600;color:#1A1A1A}
+  .lameli-container{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:flex-end;min-height:180px;padding:20px;background:#F8F9FA;border-radius:8px}
+  .lamela-item{background:transparent;border:2px solid #CED4DA;border-radius:6px;width:26px;height:150px;flex-shrink:0;transition:border-color .2s,transform .2s;cursor:pointer;position:relative}
+  .lamela-item:hover{transform:translateY(-2px);border-color:#D4AF37}
+  .perde-color-picker{display:none;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:10px;padding:12px 16px;margin:16px auto 0 auto;text-align:center;width:fit-content;box-shadow:0 4px 14px rgba(0,0,0,.04)}
+  .perde-color-title{font-weight:600;color:#1A1A1A;margin-bottom:6px;font-size:1rem}
+  .perde-color-swatches{display:grid;grid-template-rows:repeat(3,auto);grid-auto-flow:column;gap:10px;justify-items:center;align-items:center;width:fit-content;margin:0 auto}
+  .perde-color-option{display:flex;align-items:center;justify-content:center}
+  .perde-color-swatch{width:70px;height:32px;border-radius:6px;border:1px solid rgba(0,0,0,.15);cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8),0 -1px 1px rgba(0,0,0,.5)}
+  .perde-color-swatch[data-code="BR-01"],.perde-color-swatch[data-code="BR-02"]{color:#1A1A1A;text-shadow:0 1px 2px rgba(255,255,255,.9),0 -1px 2px rgba(0,0,0,.3)}
+  .perde-color-swatch.active{border-color:#D4AF37;box-shadow:0 0 0 2px rgba(212,175,55,.25);transform:translateY(-1px)}
+  .perde-color-selected{margin-top:6px;font-size:.9rem;color:#666;text-align:center}
+  .perde-color-actions{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:10px}
+  .perde-clear-btn{background:#E9ECEF;color:#1A1A1A;border:1px solid #CED4DA;border-radius:8px;padding:8px 16px;font-weight:600;font-size:.9rem;cursor:pointer;transition:background .2s,border-color .2s}
+  .perde-clear-btn:hover{background:#DEE2E6;border-color:#ADB5BD}
+  .perde-symmetry-toggle{display:flex;align-items:center;gap:8px;font-weight:600;color:#1A1A1A;background:#F8F9FA;border:2px solid #E5E5E5;border-radius:999px;padding:8px 18px;cursor:pointer;transition:border-color .2s}
+  .perde-symmetry-toggle input{appearance:none;width:18px;height:18px;border-radius:50%;border:2px solid #CED4DA;display:inline-flex;align-items:center;justify-content:center;position:relative;background:#fff;transition:background .2s,border-color .2s}
+  .perde-symmetry-toggle input:checked{background:#D4AF37;border-color:#D4AF37}
+  .perde-symmetry-toggle input::after{content:"✓";width:100%;height:100%;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;opacity:0;transition:opacity .2s}
+  .perde-symmetry-toggle input:checked::after{opacity:1}
+  .lamela-summary{margin-top:10px;font-weight:600;color:#1A1A1A;text-align:center}
   .calc-input button {
     background: linear-gradient(135deg, #D4AF37, #F4D03F);
     color: #1A1A1A;
@@ -1570,6 +1592,23 @@
             <button onclick="calculatePerde()">Изчисли</button>
           </div>
           <div class="calc-result" id="perde-result">—</div>
+          <div class="perde-color-picker" id="perde-color-picker">
+            <div class="perde-color-title">Изберете код и цвят на плата:</div>
+            <div class="perde-color-swatches" id="perde-color-swatches"></div>
+            <div class="perde-color-selected" id="perde-color-selected">Няма избран цвят</div>
+            <div class="perde-color-actions">
+              <label class="perde-symmetry-toggle">
+                <input type="checkbox" id="perde-symmetry-toggle" checked>
+                <span>Симетрично разпределение</span>
+              </label>
+              <button class="perde-clear-btn" id="perde-clear-btn" onclick="clearPerdeColors()">Изчисти</button>
+            </div>
+          </div>
+          <div class="lameli-visualization" id="perde-lameli-visualization" style="display:none;">
+            <div class="lameli-info" id="perde-lameli-info">Брой ламели: <span id="perde-lameli-count">0</span></div>
+            <div class="lameli-container" id="perde-lameli-container"></div>
+          </div>
+          <div class="lamela-summary" id="perde-lamela-summary">Разпределение: —</div>
           <button class="add-to-cart-btn" onclick="addPerdeToCart()" id="perde-add-cart" style="display:none;">Добави в кошницата</button>
           <div class="history" id="perde-history"><strong>Последни резултати:</strong></div>
         </div>
@@ -1780,6 +1819,12 @@
     }
     function addPerdeToCart() {
       if (!lastPerdeResult) return;
+      if (!ensureLamelaColoringComplete(true)) return;
+      const distribution = getLamelaDistributionText();
+      if (perdeColoringRequired) {
+        lastPerdeResult.details = lastPerdeResult.details || {};
+        lastPerdeResult.details["Разпределение"] = distribution || "Не е завършено";
+      }
       addToCart(lastPerdeResult.name, lastPerdeResult.price, lastPerdeResult.details);
     }
     function addMosquitoToCart() {
@@ -2078,6 +2123,11 @@ ${itemsList}
     let doubleRoloHistory = [];
     let pliseCalcHistory = [];
     let perdeCalcHistory = [];
+    let selectedPerdeColor = null;
+    let lamelaColors = [];
+    let lamelaFirstFillDone = false;
+    let symmetryEnabled = true;
+    let perdeColoringRequired = false;
     let dreveniHistory = [];
     // Last calculated results for cart
     let lastMiniResult = null;
@@ -2525,6 +2575,42 @@ ${itemsList}
       mc: { price: 21.77, label: "MC (тесни платове)" },
       smf: { price: 22.57, label: "SMF" },
       jp: { price: 30.79, label: "JP VERDUO (цв.печат)" }
+    };
+    const perdeSeriesColors = {
+      br: [
+        { code: "BR-01", name: "", color: "#FDFDFD" },
+        { code: "BR-02", name: "", color: "#F2F1EE" },
+        { code: "BR-03", name: "", color: "#ECEBD8" },
+        { code: "BR-04", name: "", color: "#D6D4C4" },
+        { code: "BR-05", name: "", color: "#C4CBB8" },
+        { code: "BR-06", name: "", color: "#CCC89D" },
+        { code: "BR-07", name: "", color: "#A89B7A" },
+        { code: "BR-08", name: "", color: "#A89389" },
+        { code: "BR-09", name: "", color: "#939486" },
+        { code: "BR-10", name: "", color: "#9E9280" },
+        { code: "BR-11", name: "", color: "#5B3C3C" },
+        { code: "BR-12", name: "", color: "#B7BDC1" },
+        { code: "BR-13", name: "", color: "#BFB7C1" },
+        { code: "BR-14", name: "", color: "#8A8F90" },
+        { code: "BR-15", name: "", color: "#696969" },
+        { code: "BR-16", name: "", color: "#858890" },
+        { code: "BR-17", name: "", color: "#54565B" },
+        { code: "BR-18", name: "", color: "#303135" },
+        { code: "BR-19", name: "", color: "#1F2024" },
+        { code: "BR-20", name: "", color: "#161616" },
+        { code: "BR-21", name: "", color: "#DFCBDA" },
+        { code: "BR-22", name: "", color: "#DCA6CE" },
+        { code: "BR-23", name: "", color: "#5F1A4D" },
+        { code: "BR-24", name: "", color: "#BEA801" },
+        { code: "BR-25", name: "", color: "#A59730" },
+        { code: "BR-26", name: "", color: "#FA832F" },
+        { code: "BR-27", name: "", color: "#D6EFE9" },
+        { code: "BR-28", name: "", color: "#5C8952" },
+        { code: "BR-29", name: "", color: "#43653B" },
+        { code: "BR-30", name: "", color: "#058AA4" },
+        { code: "BR-31", name: "", color: "#024F5F" },
+        { code: "BR-32", name: "", color: "#6B0E0E" }
+      ]
     };
     
     // Функция за получаване на правилните цени в зависимост от потребителя
@@ -3806,6 +3892,414 @@ ${itemsList}
         : `Плисе: ${formatDimension(widthIn)}×${formatDimension(heightIn)} → ${area.toFixed(1)} м² - ${price.toFixed(2)}€`;
       pushHistory(pliseCalcHistory, historyText, "plise-history");
     }
+    function renderPerdeColorOptions(seriesKey = "") {
+      const picker = document.getElementById("perde-color-picker");
+      const swatchesWrap = document.getElementById("perde-color-swatches");
+      const selectedText = document.getElementById("perde-color-selected");
+      if (!picker || !swatchesWrap || !selectedText) return;
+      
+      if (!seriesKey) {
+        perdeColoringRequired = false;
+        picker.style.display = "none";
+        picker.removeAttribute("data-series");
+        resetLamelaColors();
+        const summaryEl = document.getElementById("perde-lamela-summary");
+        if (summaryEl) {
+          summaryEl.textContent = "Разпределение: —";
+        }
+        return;
+      }
+      const normalizedKey = (seriesKey || "").toLowerCase();
+      const palette = perdeSeriesColors[normalizedKey];
+      
+      swatchesWrap.innerHTML = "";
+      selectedText.textContent = "Няма избран цвят";
+      selectedPerdeColor = null;
+      
+      if (!palette || palette.length === 0) {
+        perdeColoringRequired = false;
+        picker.style.display = "none";
+        picker.removeAttribute("data-series");
+        resetLamelaColors();
+        return;
+      }
+      
+      const previousSeries = picker.dataset.series;
+      if (!previousSeries || previousSeries !== normalizedKey) {
+        resetLamelaColors();
+      }
+      picker.dataset.series = normalizedKey;
+      picker.style.display = "block";
+      perdeColoringRequired = true;
+      
+      palette.forEach(color => {
+        const option = document.createElement("div");
+        option.className = "perde-color-option";
+        
+        const swatch = document.createElement("div");
+        swatch.className = "perde-color-swatch";
+        swatch.style.backgroundColor = color.color;
+        swatch.dataset.code = color.code;
+        swatch.title = `${color.code}${color.name ? " • " + color.name : ""}`;
+        swatch.textContent = color.code;
+        swatch.addEventListener("click", () => selectPerdeColor(color, swatch));
+        
+        option.appendChild(swatch);
+        swatchesWrap.appendChild(option);
+      });
+      
+      // Calculate proper container width based on number of colors
+      const numColors = palette.length;
+      const numColumns = Math.ceil(numColors / 3);
+      const swatchWidth = 70;
+      const gap = 10;
+      const calculatedWidth = (numColumns * swatchWidth) + ((numColumns - 1) * gap) + 32;
+      picker.style.minWidth = `${calculatedWidth}px`;
+    }
+    
+    function selectPerdeColor(color, swatchElement) {
+      if (!color) return;
+      selectedPerdeColor = { ...color };
+      document.querySelectorAll(".perde-color-swatch").forEach(el => el.classList.remove("active"));
+      if (swatchElement) {
+        swatchElement.classList.add("active");
+      }
+      const selectedText = document.getElementById("perde-color-selected");
+      if (selectedText) {
+        selectedText.textContent = `${color.code}${color.name ? " – " + color.name : ""}`;
+      }
+    }
+    
+    function clearPerdeColors() {
+      resetLamelaColors(true);
+      selectedPerdeColor = null;
+      document.querySelectorAll(".perde-color-swatch").forEach(el => el.classList.remove("active"));
+      const selectedText = document.getElementById("perde-color-selected");
+      if (selectedText) {
+        selectedText.textContent = "Няма избран цвят";
+      }
+    }
+    
+    function resetLamelaColors(resetFirstFill = true) {
+      lamelaColors = [];
+      if (resetFirstFill) {
+        lamelaFirstFillDone = false;
+      }
+      document.querySelectorAll(".lamela-item").forEach(el => setLamelaColorStyles(el, null));
+      updateLamelaSummary();
+    }
+    
+    function setLamelaColorStyles(element, colorData) {
+      if (!element) return;
+      if (!colorData) {
+        element.style.background = "transparent";
+        element.style.borderColor = "#CED4DA";
+        element.removeAttribute("data-color-code");
+        return;
+      }
+      element.style.background = colorData.color;
+      element.style.borderColor = isDarkColor(colorData.color) ? "#F8F9FA" : "#1A1A1A";
+      element.setAttribute("data-color-code", colorData.code);
+    }
+    
+    function setLamelaColorAtIndex(index, colorData) {
+      if (!Array.isArray(lamelaColors) || index < 0 || index >= lamelaColors.length) return;
+      lamelaColors[index] = colorData ? { ...colorData } : null;
+      const lamelaEl = document.querySelector(`.lamela-item[data-index="${index}"]`);
+      if (lamelaEl) {
+        setLamelaColorStyles(lamelaEl, lamelaColors[index]);
+      }
+    }
+    
+    function hasAllLamelaColors() {
+      return Array.isArray(lamelaColors) && lamelaColors.length > 0 && lamelaColors.every(color => color && color.code);
+    }
+    
+    function isLamelaColoringComplete() {
+      if (!perdeColoringRequired) return true;
+      return hasAllLamelaColors();
+    }
+    
+    function ensureLamelaColoringComplete(showAlert = false) {
+      const complete = isLamelaColoringComplete();
+      if (!complete && showAlert) {
+        alert("Моля оцветете всички ламели преди да добавите продукта в кошницата.");
+      }
+      return complete;
+    }
+    
+    function getLamelaDistributionText() {
+      if (!perdeColoringRequired || !hasAllLamelaColors()) return "";
+      const segments = [];
+      let currentCode = null;
+      let count = 0;
+      const pushSegment = () => {
+        if (count > 0 && currentCode) {
+          segments.push(`${count}-${currentCode.toUpperCase()}`);
+        }
+      };
+      lamelaColors.forEach(color => {
+        const code = color?.code || null;
+        if (code === currentCode) {
+          count++;
+        } else {
+          pushSegment();
+          currentCode = code;
+          count = code ? 1 : 0;
+        }
+      });
+      pushSegment();
+      return segments.join(", ");
+    }
+    
+    function updateLamelaSummary() {
+      const summaryEl = document.getElementById("perde-lamela-summary");
+      if (!summaryEl) return;
+      let summaryValue;
+      if (!perdeColoringRequired) {
+        summaryValue = "Не е приложимо";
+      } else if (hasAllLamelaColors()) {
+        summaryValue = getLamelaDistributionText() || "Не е завършено";
+      } else if (lamelaColors.length > 0) {
+        summaryValue = "Не е завършено";
+      } else {
+        summaryValue = "Изберете цветове";
+      }
+      summaryEl.textContent = `Разпределение: ${summaryValue}`;
+      if (lastPerdeResult) {
+        lastPerdeResult.details = lastPerdeResult.details || {};
+        lastPerdeResult.details["Разпределение"] = summaryValue;
+      }
+    }
+    
+    function isDarkColor(hexColor) {
+      if (!hexColor) return false;
+      let hex = hexColor.replace("#", "");
+      if (hex.length === 3) {
+        hex = hex.split("").map(ch => ch + ch).join("");
+      }
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      if ([r, g, b].some(v => isNaN(v))) return false;
+      const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+      return luminance < 140;
+    }
+    
+    function applyColorToLamela(index) {
+      if (!perdeColoringRequired) return;
+      if (!selectedPerdeColor) {
+        const picker = document.getElementById("perde-color-picker");
+        const selectedText = document.getElementById("perde-color-selected");
+        if (picker && picker.style.display !== "none" && selectedText) {
+          selectedText.textContent = "Изберете цвят и кликнете върху ламела.";
+        }
+        return;
+      }
+      if (!Array.isArray(lamelaColors) || lamelaColors.length === 0) {
+        alert("Моля изчислете пердето, за да визуализирате ламелите преди оцветяване.");
+        return;
+      }
+      const hasAnyColor = lamelaColors.some(color => color);
+      if (!lamelaFirstFillDone || !hasAnyColor) {
+        for (let i = 0; i < lamelaColors.length; i++) {
+          setLamelaColorAtIndex(i, selectedPerdeColor);
+        }
+        lamelaFirstFillDone = true;
+        updateLamelaSummary();
+        return;
+      }
+      const targets = new Set([index]);
+      if (symmetryEnabled && lamelaColors.length > 0) {
+        const mirrorIndex = lamelaColors.length - 1 - index;
+        targets.add(mirrorIndex);
+      }
+      targets.forEach(i => {
+        if (i >= 0 && i < lamelaColors.length) {
+          setLamelaColorAtIndex(i, selectedPerdeColor);
+        }
+      });
+      updateLamelaSummary();
+    }
+    
+    function clearLamelaColor(index) {
+      if (!perdeColoringRequired || !Array.isArray(lamelaColors) || lamelaColors.length === 0) return;
+      setLamelaColorAtIndex(index, null);
+      if (!lamelaColors.some(color => color)) {
+        lamelaFirstFillDone = false;
+      }
+      updateLamelaSummary();
+    }
+    
+    // Calculate number of ламели based on width intervals from the provided table
+    // Intervals: 2 ламели (30-36), 3 ламели (37-47), 4 ламели (48-57), etc.
+    function calculateLameliCount(width, controlType = "standard") {
+      if (!width || width <= 0) return 0;
+      const standardIntervals = [
+        { min: 30, max: 36, count: 2 },
+        { min: 37, max: 47, count: 3 },
+        { min: 48, max: 57, count: 4 },
+        { min: 58, max: 68, count: 5 },
+        { min: 69, max: 78, count: 6 },
+        { min: 79, max: 89, count: 7 },
+        { min: 90, max: 99, count: 8 },
+        { min: 100, max: 110, count: 9 },
+        { min: 111, max: 120, count: 10 },
+        { min: 121, max: 131, count: 11 },
+        { min: 132, max: 141, count: 12 },
+        { min: 142, max: 152, count: 13 },
+        { min: 153, max: 162, count: 14 },
+        { min: 163, max: 173, count: 15 },
+        { min: 174, max: 183, count: 16 },
+        { min: 184, max: 194, count: 17 },
+        { min: 195, max: 204, count: 18 },
+        { min: 205, max: 215, count: 19 },
+        { min: 216, max: 225, count: 20 },
+        { min: 226, max: 236, count: 21 },
+        { min: 237, max: 246, count: 22 },
+        { min: 247, max: 257, count: 23 },
+        { min: 258, max: 267, count: 24 },
+        { min: 268, max: 278, count: 25 },
+        { min: 279, max: 288, count: 26 },
+        { min: 289, max: 299, count: 27 },
+        { min: 300, max: 309, count: 28 },
+        { min: 310, max: 320, count: 29 },
+        { min: 321, max: 330, count: 30 },
+        { min: 331, max: 341, count: 31 }
+      ];
+      const splitIntervals = [
+        { min: 30, max: 38, count: 2 },
+        { min: 39, max: 59, count: 4 },
+        { min: 60, max: 80, count: 6 },
+        { min: 81, max: 101, count: 8 },
+        { min: 102, max: 122, count: 10 },
+        { min: 123, max: 143, count: 12 },
+        { min: 144, max: 164, count: 14 },
+        { min: 165, max: 185, count: 16 },
+        { min: 186, max: 206, count: 18 },
+        { min: 207, max: 227, count: 20 },
+        { min: 228, max: 248, count: 22 },
+        { min: 249, max: 269, count: 24 },
+        { min: 270, max: 290, count: 26 },
+        { min: 291, max: 311, count: 28 },
+        { min: 312, max: 332, count: 30 },
+        { min: 333, max: 353, count: 32 }
+      ];
+      
+      const intervals = controlType === "razdelno" ? splitIntervals : standardIntervals;
+      
+      // Find the interval that contains the width
+      for (let i = 0; i < intervals.length; i++) {
+        if (width >= intervals[i].min && width <= intervals[i].max) {
+          return intervals[i].count;
+        }
+      }
+      
+      // If width is less than minimum, return minimum count
+      const minInterval = intervals[0];
+      const maxInterval = intervals[intervals.length - 1];
+      if (width < minInterval.min) return minInterval.count;
+      
+      // If width is greater than maximum, return maximum count
+      if (width > maxInterval.max) return maxInterval.count;
+      
+      // Default fallback
+      return 0;
+    }
+    
+    /* 
+    // Visualize ламели
+    function visualizeLameli(count, width) {
+      const visualizationDiv = document.getElementById("perde-lameli-visualization");
+      const countSpan = document.getElementById("perde-lameli-count");
+      const containerDiv = document.getElementById("perde-lameli-container");
+      
+      if (!visualizationDiv || !countSpan || !containerDiv) return;
+      
+      if (count <= 0) {
+        visualizationDiv.style.display = "none";
+        resetLamelaColors();
+        return;
+      }
+      
+      // Update count
+      countSpan.textContent = count;
+      
+      // Clear container
+      containerDiv.innerHTML = "";
+      
+      if (!Array.isArray(lamelaColors)) {
+        lamelaColors = [];
+      }
+      lamelaColors = lamelaColors.slice(0, count);
+      while (lamelaColors.length < count) {
+        lamelaColors.push(null);
+      }
+      
+      // Create visual representation of each ламел
+      // Calculate approximate width per ламел
+      const widthPerLamela = (width / count).toFixed(1);
+      
+      for (let i = 1; i <= count; i++) {
+        const lamelaDiv = document.createElement("div");
+        lamelaDiv.className = "lamela-item";
+        lamelaDiv.title = `Ламел ${i} • ~${widthPerLamela} см`;
+        const index = i - 1;
+        lamelaDiv.dataset.index = index;
+        lamелаDiv.addEventListener("click", () => applyColorToLamela(index));
+        lamелаDiv.addEventListener("dblclick", () => clearLamelaColor(index));
+        lamelaDiv.addEventListener("contextmenu", (event) => {
+          event.preventDefault();
+          clearLamelaColor(index);
+        });
+        if (lamелаColors[index]) {
+          setLamelaColorStyles(lamelaDiv, lamелаColors[index]);
+        }
+        containerDiv.appendChild(lamelaDiv);
+      }
+      
+      // Show visualization
+      visualizationDiv.style.display = "block";
+    }
+    */
+
+    // Override with color-aware lameli visualization (fixes Unicode identifier issues above)
+    function visualizeLameli(count, width) {
+      const visualizationDiv = document.getElementById("perde-lameli-visualization");
+      const countSpan = document.getElementById("perde-lameli-count");
+      const containerDiv = document.getElementById("perde-lameli-container");
+      if (!visualizationDiv || !countSpan || !containerDiv) return;
+      if (count <= 0) {
+        visualizationDiv.style.display = "none";
+        resetLamelaColors();
+        return;
+      }
+      countSpan.textContent = count;
+      containerDiv.innerHTML = "";
+      lamelaColors = new Array(count).fill(null);
+      lamelaFirstFillDone = false;
+      const widthPerLamela = (width / count).toFixed(1);
+      for (let i = 1; i <= count; i++) {
+        const lamelaDiv = document.createElement("div");
+        lamelaDiv.className = "lamela-item";
+        lamelaDiv.title = `Ламел ${i} • ~${widthPerLamela} см`;
+        const index = i - 1;
+        lamelaDiv.dataset.index = index;
+        lamelaDiv.addEventListener("click", () => applyColorToLamela(index));
+        lamelaDiv.addEventListener("dblclick", () => clearLamelaColor(index));
+        lamelaDiv.addEventListener("contextmenu", (event) => {
+          event.preventDefault();
+          clearLamelaColor(index);
+        });
+        if (lamelaColors[index]) {
+          setLamelaColorStyles(lamelaDiv, lamelaColors[index]);
+        }
+        containerDiv.appendChild(lamelaDiv);
+      }
+      visualizationDiv.style.display = "block";
+      updateLamelaSummary();
+    }
+    
     function calculatePerde() {
       const widthIn = parseFloat(document.getElementById("perde-width").value);
       const heightIn = parseFloat(document.getElementById("perde-height").value);
@@ -3834,6 +4328,8 @@ ${itemsList}
         showCalcError(res, "Невалидна серия.");
         return;
       }
+      const colorLabel = selectedPerdeColor ? `${selectedPerdeColor.code}${selectedPerdeColor.name ? ` (${selectedPerdeColor.name})` : ""}` : null;
+      const colorLine = colorLabel ? `<div>Цвят: <span class="highlight">${colorLabel}</span></div>` : "";
       const area = (width / 100) * (height / 100);
       let price = area * series.price;
       if (nonStandard) price *= 1.3;
@@ -3844,14 +4340,24 @@ ${itemsList}
       };
       const controlLabel = controlLabels[control] || control;
       const extrasLabel = nonStandard ? "Екстри: Скосени (+30%)" : "Екстри: Няма";
+      const lamelaDistribution = getLamelaDistributionText();
+      const lamelaSummaryValue = !perdeColoringRequired ? "Не е приложимо" : (lamelaDistribution || "Не е завършено");
+      const lamelaSummaryLine = perdeColoringRequired ? `<div>Разпределение: <span class="highlight">${lamelaSummaryValue}</span></div>` : "";
       const content = `
         <div>Размери: ${formatDimension(widthIn)}×${formatDimension(heightIn)} см → <strong>${width}×${height} см</strong></div>
         <div>Серия: <span class="highlight">${series.label}</span> (${series.price.toFixed(2)} €/m²)</div>
+        ${colorLine}
         <div>Събиране: <span class="highlight">${controlLabel}</span></div>
         <div>${extrasLabel}</div>
+        ${lamelaSummaryLine}
         <div style="margin-top:12px;font-size:1.4em;">Цена: <strong>${price.toFixed(2)} €</strong></div>
       `;
       showCalcSuccess(res, content);
+      
+      // Calculate and visualize ламели
+      const lameliCount = calculateLameliCount(widthIn, control);
+      visualizeLameli(lameliCount, widthIn);
+      
       // Save result for cart
       lastPerdeResult = {
         name: "Перде-Щора",
@@ -3859,12 +4365,17 @@ ${itemsList}
         details: {
           "Размери": `${formatDimension(widthIn)}×${formatDimension(heightIn)} см → ${width}×${height} см`,
           "Серия": series.label,
+          "Цвят": colorLabel || "Не е избран",
           "Цена за м²": `${series.price.toFixed(2)} €`,
           "Събиране": controlLabel,
           "Тип": nonStandard ? "Скосени" : "Стандартно",
-          "Квадратура": `${area.toFixed(2)} м²`
+          "Квадратура": `${area.toFixed(2)} м²`,
+          "Брой ламели": `${lameliCount}`
         }
       };
+      if (perdeColoringRequired) {
+        lastPerdeResult.details["Разпределение"] = lamelaSummaryValue;
+      }
       document.getElementById("perde-add-cart").style.display = "block";
       pushHistory(perdeCalcHistory, `Перде-Щора: ${formatDimension(widthIn)}×${formatDimension(heightIn)} → ${width}×${height} - ${price.toFixed(2)}€`, "perde-history");
     }
@@ -5350,6 +5861,42 @@ ${itemsList}
             doubleRoloBoxClosed.checked = true;
           }
         });
+      }
+      
+      // Real-time ламели visualization for перде щора
+      const perdeWidthInput = document.getElementById("perde-width");
+      const perdeControlSelect = document.getElementById("perde-control");
+      const lameliVisualizationDiv = document.getElementById("perde-lameli-visualization");
+      function updateLameliPreview() {
+        if (!perdeWidthInput) return;
+        const width = parseFloat(perdeWidthInput.value);
+        const controlValue = perdeControlSelect ? perdeControlSelect.value || "standard" : "standard";
+        if (!isNaN(width) && width > 0) {
+          const lameliCount = calculateLameliCount(width, controlValue);
+          visualizeLameli(lameliCount, width);
+        } else if (lameliVisualizationDiv) {
+          lameliVisualizationDiv.style.display = "none";
+          resetLamelaColors();
+        }
+      }
+      if (perdeWidthInput) {
+        perdeWidthInput.addEventListener("input", updateLameliPreview);
+      }
+      if (perdeControlSelect) {
+        perdeControlSelect.addEventListener("change", updateLameliPreview);
+      }
+      const symmetryToggle = document.getElementById("perde-symmetry-toggle");
+      if (symmetryToggle) {
+        symmetryEnabled = symmetryToggle.checked;
+        symmetryToggle.addEventListener("change", () => {
+          symmetryEnabled = symmetryToggle.checked;
+        });
+      }
+      const perdeSeriesSelect = document.getElementById("perde-series");
+      if (perdeSeriesSelect) {
+        const updateColorOptions = () => renderPerdeColorOptions(perdeSeriesSelect.value || "");
+        perdeSeriesSelect.addEventListener("change", updateColorOptions);
+        updateColorOptions();
       }
     };
     // Auto-focus username field when user starts typing on login screen
